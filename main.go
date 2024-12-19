@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-
-	"~/Starting_GOLang/exercises"
+	"math"
 )
 
 func main() {
-	fmt.Println(exercises.Greet("GO"))
+	var x float64 = 10
+	fmt.Println(math.Sqrt(x))
+	fmt.Println(SQRT(x))
 }
