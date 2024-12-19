@@ -2,11 +2,21 @@ package main
 
 import (
 	"fmt"
-	"math"
+	"time"
 )
 
 func main() {
-	var x float64 = 10
-	fmt.Println(math.Sqrt(x))
-	fmt.Println(SQRT(x))
+	fmt.Println("When's Saturday?")
+	today := time.Now().Weekday()
+	fmt.Println(time.Now())
+	switch time.Saturday {
+	case today + 0:
+		fmt.Println("Today.")
+	case today + 1:
+		fmt.Println("Tomorrow.")
+	case today + 2:
+		fmt.Println("In two days.")
+	default:
+		fmt.Println("Too far away.")
+	}
 }
