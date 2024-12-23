@@ -13,5 +13,5 @@ func main() {
 	fmt.Printf("The adress of i = %d is %d \n", i, p)
 	fmt.Printf("The adress of j = %d is %d \n", j, &j)
 	fmt.Println(p)
-	fmt.Println(&j)
+	fmt.Println(&j)	
 }
