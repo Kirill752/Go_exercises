@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 func twoSum(nums []int, target int) []int {
 	res := make([]int, 2)
 	for i := 0; i < len(nums); i++ {
@@ -13,8 +11,16 @@ func twoSum(nums []int, target int) []int {
 	}
 	return res
 }
-func main() {
-	input := []int{2, 7, 11, 15}
-	result := twoSum(input, 9)
-	fmt.Println(result)
+func twoSum_2(nums []int, target int) []int {
+	res_map := make(map[int]int)
+	res := make([]int, 2)
+	for i, v := range nums {
+		if value, exist := res_map[(target - v)]; exist {
+			res[0] = value
+			res[1] = i
+		} else {
+			res_map[v] = i
+		}
+	}
+	return res
 }
