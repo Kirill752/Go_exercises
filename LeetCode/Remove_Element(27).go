@@ -9,6 +9,18 @@ func removeElement(nums []int, val int) int {
 			k++
 		}
 	}
-
+	// fmt.Println(nums)
+	for L := 0; L < k; L++ {
+		if nums[L] == -1 {
+			for i := L; i < len(nums); i++ {
+				if nums[i] != -1 {
+					swap(nums, L, i)
+					// fmt.Println(nums)
+					break
+				}
+			}
+		}
+	}
+	// fmt.Println(nums)
 	return k
 }

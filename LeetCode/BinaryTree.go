@@ -87,12 +87,3 @@ func PrintTree_2(Node *TreeNode, rpref string, cpref string, lpref string) {
 		PrintTree_2(Node.left, lpref+"| ", lpref+"\\-", lpref+" ")
 	}
 }
-
-func largestValues(root []int) []int {
-	node := &TreeNode{val: root[0]}
-	for i := 1; i < len(root); i++ {
-		node.Insesrt_in_Node(root[i])
-	}
-	PrintTree_2(node, "", "", "")
-	return nil
-}
