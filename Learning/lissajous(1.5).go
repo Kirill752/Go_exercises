@@ -13,10 +13,10 @@ import (
 // Программа формирует .gif картинку фигур Лиссажуэ
 // Пример запуска:
 // ./execute >lissajous.gif
-func lissajous(out io.Writer) {
+func lissajous(out io.Writer, cycles float64) {
 	pallete := []color.Color{color.Black, color.White, color.RGBA{0, 255, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{0, 0, 255, 255}}
 	const (
-		cycles  = 5     // количество полных колебаний x
+		// cycles  = 5     // количество полных колебаний x
 		res     = 0.001 // Угловое разришение
 		size    = 100   // Канва изображения
 		nframes = 64    // Количество кадров анимации
