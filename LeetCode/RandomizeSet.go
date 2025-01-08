@@ -44,11 +44,3 @@ func (this *RandomizedSet) GetRandom() int {
 	index := rand.Intn(len(this.keys))
 	return this.keys[index]
 }
-
-/**
- * Your RandomizedSet object will be instantiated and called as such:
- * obj := Constructor();
- * param_1 := obj.Insert(val);
- * param_2 := obj.Remove(val);
- * param_3 := obj.GetRandom();
- */
