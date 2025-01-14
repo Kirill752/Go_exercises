@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -12,11 +13,14 @@ func main() {
 	in = bufio.NewReader(os.Stdin)
 	out = bufio.NewWriter(os.Stdout)
 	defer out.Flush()
-	var t int
-	fmt.Fscan(in, &t)
-	var number string
-	for i := 0; i < t; i++ {
-		fmt.Fscan(in, &number)
-		fmt.Fprintf(out, "%s\n", deleteNumber(number))
+	var t string
+	t, _ = in.ReadString('\n')
+	n, _ := strconv.Atoi(t[:len(t)-1])
+	var first, second, third string
+	for i := 0; i < n; i++ {
+		first, _ = in.ReadString('\n')
+		second, _ = in.ReadString('\n')
+		third, _ = in.ReadString('\n')
+		fmt.Fprintf(out, "%s\n", answerValidation(first[:len(first)-1], second[:len(second)-1], third[:len(third)-1]))
 	}
 }

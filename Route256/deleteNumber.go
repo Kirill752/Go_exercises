@@ -13,7 +13,7 @@ func deleteNumber(number string) string {
 			break
 		}
 	}
-	if marker == false && len(number) > 1 {
+	if !marker && len(number) > 1 {
 		return number[:len(number)-1]
 	}
 	return result
