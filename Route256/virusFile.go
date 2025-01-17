@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"regexp"
 )
@@ -20,8 +19,8 @@ func ReadJson(source string) directory {
 	return dir
 }
 
-func ReadData(data []byte) directory {
-	var dir directory
+func ReadData(data []byte) *directory {
+	var dir *directory
 	json.Unmarshal(data, &dir)
 	return dir
 }
@@ -33,21 +32,16 @@ func numberof_files(dir_ptr *directory) int {
 	}
 	return totalFilesCount
 }
-func virusFile(dir directory, virusCount int, virusDetected bool) int {
-	re := regexp.MustCompile(".hack$")
+func virusFile(dir *directory) int {
+	re := regexp.MustCompile(`\.hack$`)
 	for _, v := range dir.Files {
 		if re.FindStringIndex(v) != nil {
-			virusDetected = true
-			virusCount += len(dir.Files)
-			fmt.Printf("virus_files is %v\n", dir.Files)
+			return numberof_files(dir)
 		}
 	}
-	if virusDetected {
-		virusCount = numberof_files(&dir)
-	} else {
-		for _, folder := range dir.Folders {
-			virusCount = virusFile(*folder, virusCount, virusDetected)
-		}
+	virus_folders := 0
+	for _, folder := range dir.Folders {
+		virus_folders += virusFile(folder)
 	}
-	return virusCount
+	return virus_folders
 }
