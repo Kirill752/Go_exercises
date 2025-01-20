@@ -16,64 +16,34 @@ func main() {
 	fmt.Fscanf(in, "%d", &t)
 	_, _ = in.ReadByte()
 	for ; t > 0; t-- {
-		var n int
-		var m int
+		var n int // число строк
+		var m int // число столбцов
 		fmt.Fscanf(in, "%d %d", &n, &m)
-		// Создаем n объектов компьютеров
-		computers := make([]*computer, 0)
-		// Множество использованных id для компьютеров
-		usedIds := map[int]bool{}
-		// Инициализируем рычаги
-		switches := make([]switcher, m)
-		// Считываем a_i b_i
-		for i := 0; i < m; i++ {
-			var ai int
-			var bi int
-			fmt.Fscan(in, &ai, &bi)
-			_, _ = in.ReadByte()
-			// Новый переключатель
-			switches[i].id = i + 1
-			// Создаем компьютер a, если компьютера с таким id еще нет
-			if _, ok := usedIds[ai]; !ok {
-				a := new(computer)
-				a.id = ai
-				a.switches = append(a.switches, &switches[i])
-				switches[i].a = a
-				usedIds[ai] = true
-				computers = append(computers, a)
-			} else {
-				// Иначе ищем этот компьютер
-				for j := 0; j < len(computers); j++ {
-					if computers[j].id == ai {
-						computers[j].switches = append(computers[j].switches, &switches[i])
-						switches[i].a = computers[j]
-					}
-				}
-			}
-			// Создаем компьютер b, если компьютера с таким id еще нет
-			if _, ok := usedIds[bi]; !ok {
-				b := new(computer)
-				b.id = bi
-				b.switches = append(b.switches, &switches[i])
-				switches[i].b = b
-				usedIds[bi] = true
-				computers = append(computers, b)
-			} else {
-				// Иначе ищем этот компьютер
-				for j := 0; j < len(computers); j++ {
-					if computers[j].id == bi {
-						computers[j].switches = append(computers[j].switches, &switches[i])
-						switches[i].b = computers[j]
-					}
-				}
+		_, _ = in.ReadByte()
+		field := make([][]byte, n+2)
+		for i := 0; i < n+2; i++ {
+			field[i] = make([]byte, m+2)
+		}
+		// Ограничиваем поле сверху и снизу
+		for j := 0; j < m+2; j++ {
+			field[0][j] = '#'
+			field[n+1][j] = '#'
+		}
+		// Ограничиваем поле слева и справа
+		for i := 0; i < n+2; i++ {
+			field[i][0] = '#'
+			field[i][m+1] = '#'
+		}
+		for i := 1; i < n+1; i++ {
+			str, _ := in.ReadBytes('\n')
+			for j := 1; j < m+1; j++ {
+				field[i][j] = str[j-1]
 			}
 		}
-		maxComps, countSwitches, usedSwitches := StrangeSwitch(switches)
-		fmt.Fprintf(out, "%d\n", maxComps)
-		fmt.Fprintf(out, "%d\n", countSwitches)
-		for _, v := range usedSwitches {
-			fmt.Fprintf(out, "%d ", v.id)
+		res := ASCIIRobots(field)
+		fmt.Fprintln(out, "Answer")
+		for i := 1; i < n+1; i++ {
+			fmt.Fprintln(out, string(res[i][1:len(res[i])-1]))
 		}
-		fmt.Fprintf(out, "\n")
 	}
 }
