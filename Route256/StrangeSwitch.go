@@ -31,106 +31,78 @@ func (sw switcher) Print() {
 	fmt.Printf("[a: %d, b: %d]", sw.a.id, sw.b.id)
 }
 
-func StrangeSwitch(switches []switcher) (int, int, []switcher) {
+func dfs(sw *switcher, maxComp int, countSwitch int, usedSwitch []*switcher) (bool, int, int, []*switcher) {
+	if sw.used {
+		return false, maxComp, countSwitch, usedSwitch
+	}
+	sw.used = true
+	// Смотрим оба компьютера, к которым подключен переключатель
+	// Если переключатель включит два компьютера то дергаем рычаг
+	if !sw.a.state && !sw.b.state {
+		sw.a.state, sw.b.state = true, true
+		maxComp += 2
+		countSwitch++
+		usedSwitch = append(usedSwitch, sw)
+		return true, maxComp, countSwitch, usedSwitch
+	}
+	// Если рычаг выключит 2 компьютера
+	if sw.a.state && sw.b.state {
+		return false, maxComp, countSwitch, usedSwitch
+	}
+	// Если рычаг выключит компьютер a, но включит b
+	if sw.a.state && !sw.b.state {
+		// Пробуем переключить и смотрим, что будет в перспективе
+		sw.a.state = false
+		sw.b.state = true
+		// Нам выгодно в данный момент переключить ключ, если
+		// при его переключении мы в перспективе получим больше включенных компьютеров,
+		// то есть, если среди рычагов, подключенных к включенному компьютеру, найдется хотя бы 1 еще не использованный,
+		// который в будующем включит этот компьютер
+		for i := 0; i < len(sw.a.switches); i++ {
+			// Если соседний ключ не поcещался
+			// Решаем, выгодно ли нам его включить
+			// Выгодно, если он включит обратно a и не выключит b
+			if !sw.a.switches[i].used {
+				res, maxComp, countSwitch, usedSwitch := dfs(sw.a.switches[i], maxComp, countSwitch, usedSwitch)
+				countSwitch++
+				usedSwitch = append(usedSwitch, sw)
+				return res, maxComp, countSwitch, usedSwitch
+			}
+		}
+		// Если не нашлось такого, то возвращаем все как было
+		sw.a.state = true
+		sw.b.state = false
+	}
+	if !sw.a.state && sw.b.state {
+		sw.a.state = true
+		sw.b.state = false
+		for i := 0; i < len(sw.b.switches); i++ {
+			// Если соседний ключ не почещался
+			if !sw.b.switches[i].used {
+				res, maxComp, countSwitch, usedSwitch := dfs(sw.b.switches[i], maxComp, countSwitch, usedSwitch)
+				countSwitch++
+				usedSwitch = append(usedSwitch, sw)
+				return res, maxComp, countSwitch, usedSwitch
+			}
+		}
+		// Если не нашлось такого, то возвращаем все как было
+		sw.a.state = false
+		sw.b.state = true
+	}
+	return false, maxComp, countSwitch, usedSwitch
+}
+
+func StrangeSwitch(switches []switcher) (int, int, []*switcher) {
 	maxComps := 0
 	countSwitches := 0
-	usedSwitches := []switcher{}
+	usedSwitches := []*switcher{}
 	for i := 0; i < len(switches); i++ {
-		// Если рычаг вкючит 2 компютера то дергаем
-		if !switches[i].a.state && !switches[i].b.state {
-			switches[i].used = true
-			switches[i].a.state = true
-			switches[i].b.state = true
-			maxComps += 2
-			countSwitches++
-			usedSwitches = append(usedSwitches, switches[i])
-			// continue
+		_, nowComps, nowcountSwitches, nowusedSwitches := dfs(&switches[i], maxComps, countSwitches, usedSwitches)
+		if nowComps >= maxComps {
+			maxComps = nowComps
+			countSwitches = nowcountSwitches
+			usedSwitches = nowusedSwitches
 		}
-		// // Если рычаг вкючит компьютер a, но выключит b,
-		// // То количество включенных компьютеров не изменится
-		// // Можем дернуть, если существует еще не использованный рычаг,
-		// // который включит компьютер b обратно
-		// // Соответсвенно дергаем тот рычаг тоже
-		// if !switches[i].a.state && switches[i].b.state {
-		// 	// Дергаем исходный рычаг
-		// 	switches[i].a.state = true
-		// 	switches[i].b.state = false
-		// 	// Ищем еще не использованный рычаг, который включит
-		// 	// b обратно
-		// 	for i, sw := range switches[i].b.switches {
-		// 		if !sw.used {
-		// 			// Дергаем его
-		// 			sw.used = true
-		// 			sw.a.state = !sw.a.state
-		// 			sw.b.state = !sw.b.state
-		// 			countSwitches += 2
-		// 			usedSwitches = append(usedSwitches, switches[i])
-		// 			usedSwitches = append(usedSwitches, *sw)
-		// 			// Определим какой из двух компьютеров, принадлежащих этому переключателю
-		// 			// мы включили
-		// 			maxComps++
-		// 			// Если это компьютер а
-		// 			if sw.a == switches[i].b {
-		// 				if sw.b.state {
-		// 					maxComps++
-		// 				}
-		// 			} else {
-		// 				if sw.a.state {
-		// 					maxComps++
-		// 				}
-		// 			}
-		// 			break
-		// 		}
-		// 		// Если мы не нашли такого переключателя, то
-		// 		// не дергаем исходный рычаг
-		// 		if i == len(switches[i].b.switches)-1 {
-		// 			// возвращаем все как было
-		// 			switches[i].a.state = false
-		// 			switches[i].b.state = true
-		// 		}
-		// 	}
-		// }
-		// // Аналогично если переключатель выключит а, но
-		// // включит b
-		// if switches[i].a.state && !switches[i].b.state {
-		// 	// Дергаем исходный рычаг
-		// 	switches[i].b.state = true
-		// 	switches[i].a.state = false
-		// 	// Ищем еще не использованный рычаг, который включит
-		// 	// a обратно
-		// 	for i, sw := range switches[i].a.switches {
-		// 		if !sw.used {
-		// 			// Дергаем его
-		// 			sw.used = true
-		// 			sw.b.state = !sw.b.state
-		// 			sw.a.state = !sw.a.state
-		// 			countSwitches += 2
-		// 			usedSwitches = append(usedSwitches, switches[i])
-		// 			usedSwitches = append(usedSwitches, *sw)
-		// 			// Определим какой из двух компьютеров, принадлежащих этому переключателю
-		// 			// мы включили
-		// 			maxComps++
-		// 			// Если это компьютер b
-		// 			if sw.b == switches[i].a {
-		// 				if sw.b.state {
-		// 					maxComps++
-		// 				}
-		// 			} else {
-		// 				if sw.a.state {
-		// 					maxComps++
-		// 				}
-		// 			}
-		// 			break
-		// 		}
-		// 		// Если мы не нашли такого переключателя, то
-		// 		// не дергаем исходный рычаг
-		// 		if i == len(switches[i].a.switches)-1 {
-		// 			// возвращаем все как было
-		// 			switches[i].b.state = false
-		// 			switches[i].a.state = true
-		// 		}
-		// 	}
-		// }
 	}
 	return maxComps, countSwitches, usedSwitches
 }
