@@ -36,3 +36,7 @@ func setParams(r *http.Request) {
 		fill = fll
 	}
 }
+
+func handleMandelbrot(w http.ResponseWriter, r *http.Request) {
+	printMandelbrot(w)
+}
