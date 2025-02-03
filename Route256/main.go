@@ -20,30 +20,36 @@ func main() {
 		var m int // число столбцов
 		fmt.Fscanf(in, "%d %d", &n, &m)
 		_, _ = in.ReadByte()
-		field := make([][]byte, n+2)
-		for i := 0; i < n+2; i++ {
-			field[i] = make([]byte, m+2)
+		room := make([][]int, n)
+		for i := 0; i < n; i++ {
+			room[i] = make([]int, m)
 		}
-		// Ограничиваем поле сверху и снизу
-		for j := 0; j < m+2; j++ {
-			field[0][j] = '#'
-			field[n+1][j] = '#'
-		}
-		// Ограничиваем поле слева и справа
-		for i := 0; i < n+2; i++ {
-			field[i][0] = '#'
-			field[i][m+1] = '#'
-		}
-		for i := 1; i < n+1; i++ {
-			str, _ := in.ReadBytes('\n')
-			for j := 1; j < m+1; j++ {
-				field[i][j] = str[j-1]
+		lenLight := 0
+		totalLight := 0
+		for x := 0; x < n && totalLight <= n*m; x++ {
+			for y := 0; y < m && totalLight <= n*m; y++ {
+				if room[x][y] == 0 {
+					dir := bestDir(room, x, y)
+					lenLight++
+					totalLight = givelight(room, x, y, dir, totalLight)
+				}
 			}
 		}
-		res := ASCIIRobots(field)
-		fmt.Fprintln(out, "Answer")
-		for i := 1; i < n+1; i++ {
-			fmt.Fprintln(out, string(res[i][1:len(res[i])-1]))
+		for x := 0; x < n; x++ {
+			for y := 0; y < m; y++ {
+				room[x][y] = 0
+			}
+		}
+		fmt.Fprintln(out, lenLight)
+		totalLight = 0
+		for x := 0; x < n && totalLight <= n*m; x++ {
+			for y := 0; y < m && totalLight <= n*m; y++ {
+				if room[x][y] == 0 {
+					dir := bestDir(room, x, y)
+					fmt.Fprintln(out, x+1, y+1, string(dir))
+					totalLight = givelight(room, x, y, dir, totalLight)
+				}
+			}
 		}
 	}
 }

@@ -3,10 +3,6 @@ package main
 import "fmt"
 
 func main() {
-	// input := []int{4, 2, 0, 3, 2, 5}
-	// input := "sadbutsad"
-	// needle := "sad"
-	// fmt.Println(input[0:2])
-	input := "  hello world  "
-	fmt.Println(reverseWords(input))
+	input := []int{2, 3, 1, 2, 4, 3}
+	fmt.Println(minSubArrayLen(7, input))
 }

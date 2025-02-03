@@ -9,7 +9,7 @@ type RandomizedSet struct {
 	keys   []int
 }
 
-func Constructor() RandomizedSet {
+func ConstructorSet() RandomizedSet {
 	example := RandomizedSet{}
 	example.setMap = make(map[int]bool)
 	return example
