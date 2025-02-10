@@ -1,17 +1,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
-
-	"golang.org/x/net/html"
 )
 
 func main() {
-	doc, err := html.Parse(NewReader("vk.com"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "outline: %v\n", err)
-		os.Exit(1)
-	}
-	outline(nil, doc)
+	var temp = CelsiusFlag("temp", 20.0, "температура")
+	flag.Parse()
+	fmt.Println(*temp)
 }

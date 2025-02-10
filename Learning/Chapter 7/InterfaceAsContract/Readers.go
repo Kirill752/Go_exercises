@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/html"
 )
 
+// 7.4
 type URLReader struct {
 	url string
 	n   uint64
@@ -33,4 +34,25 @@ func outline(stack []string, n *html.Node) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		outline(stack, c)
 	}
+}
+
+// 7.5
+type ReaderWithLimit struct {
+	R io.Reader
+	n int64
+}
+
+func (lr *ReaderWithLimit) Read(p []byte) (n int, err error) {
+	if lr.n < 0 {
+		return 0, io.EOF
+	}
+	if int64(len(p)) > lr.n {
+		p = p[:lr.n]
+	}
+	n, err = lr.R.Read(p)
+	return n, err
+}
+
+func LimitReader(r io.Reader, n int64) io.Reader {
+	return &ReaderWithLimit{R: r, n: n}
 }
