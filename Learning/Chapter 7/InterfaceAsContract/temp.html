@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пример таблицы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Playlist</h2>
+
+<table class="styled-table">
+    <thead>
+        <tr>
+            <th><a href="/title" class="active-row">Title</a></th>
+            <th><a href="/artist">Artist</a></th>
+            <th><a href="/album">Album</a></th>
+            <th><a href="/year">Year</a></th>
+            <th><a href="/length">Length</a></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .}}
+        <tr>
+            <td>{{.Title}}</td>
+            <td>{{.Artist}}</td>
+            <td>{{.Album}}</td>
+            <td>{{.Year}}</td>
+            <td>{{.Length}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+</body>
+</html>
