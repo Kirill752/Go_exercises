@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <?xml-stylesheet type="text/xsl" href="style.xsl"?>
+<catalog>
+    <book id="bk101">
+        <title>XML for Beginners</title>
+        <author>John Doe</author>
+        <genre>Programming</genre>
+        <price>29.99</price>
+        <description>Learn XML from scratch with this beginner-friendly guide.</description>
+    </book>
+    <book id="bk102">
+        <title>Advanced XML Techniques</title>
+        <author>Jane Smith</author>
+        <genre>Programming</genre>
+        <price>49.99</price>
+        <description>Master advanced XML concepts and techniques.</description>
+    </book>
+</catalog>

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
-	"os"
+	"strconv"
 	"strings"
 )
 
@@ -149,7 +149,7 @@ func (b binary) Check(vars map[Var]bool) error {
 	return b.у.Check(vars)
 }
 
-var numParams = map[string]int{"pow": 2, "sin": 1, "cos": 1, "sqrt": 1}
+var numParams = map[string]int{"pow": 2, "sin": 1, "cos": 1, "sqrt": 1, "min": 0}
 
 func (c call) Check(vars map[Var]bool) error {
 	arity, ok := numParams[c.fn]
@@ -175,7 +175,7 @@ func (c call) Check(vars map[Var]bool) error {
 	return nil
 }
 
-func parseAndCheck(s string) (Expr, error) {
+func parseAndCheck(s string, vars map[Var]bool) (Expr, error) {
 	if s == "" {
 		return nil, fmt.Errorf("empty expression")
 	}
@@ -183,7 +183,7 @@ func parseAndCheck(s string) (Expr, error) {
 	if err != nil {
 		return nil, err
 	}
-	vars := make(map[Var]bool)
+	// vars := make(map[Var]bool)
 	if err := expr.Check(vars); err != nil {
 		return nil, err
 	}
@@ -197,7 +197,8 @@ func parseAndCheck(s string) (Expr, error) {
 
 func plot(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	expr, err := parseAndCheck(r.Form.Get("expr"))
+	vars := make(map[Var]bool)
+	expr, err := parseAndCheck(r.Form.Get("expr"), vars)
 	if err != nil {
 		http.Error(w, "некоректное выражение: "+err.Error(), http.StatusBadRequest)
 		return
@@ -209,15 +210,56 @@ func plot(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func main() {
-	// http.HandleFunc("/plot", plot)
-	// log.Fatal(http.ListenAndServe("localhost:8000", nil))
-	in := bufio.NewReader(os.Stdin)
-	eq, _, _ := in.ReadLine()
-	expr, err := parseAndCheck(string(eq))
+func handlerCalc(w http.ResponseWriter, r *http.Request) {
+	env := Env{}
+	vars := map[Var]bool{}
+	eq := r.URL.Query().Get("eq")
+	expr, err := parseAndCheck(string(eq), vars)
 	if err != nil {
 		fmt.Printf("ошибка парсинга: %v\n", err)
 	}
-	env := Env{"a": math.Pi / 6, "y": 2, "z": 16}
-	fmt.Println(expr.Eval(env))
+	for k := range vars {
+		val := r.URL.Query().Get(k.String())
+		env[k], err = strconv.ParseFloat(val, 64)
+		if err != nil {
+			fmt.Printf("handleFunc: %v", err)
+			return
+		}
+	}
+	fmt.Fprintln(w, expr.Eval(env))
+}
+
+// Пример выполнения
+
+// input:
+// cos(a)+pow(x, n)
+// var: n: 2
+// var: a: 0
+// var: x: 6
+
+// output:
+// 37
+// Знак '+' в параметре get запроса надо вводить как %2B
+func main() {
+	http.HandleFunc("/plot", plot)
+	http.HandleFunc("/calc", handlerCalc)
+	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+	// env := Env{}
+	// vars := map[Var]bool{}
+	// in := bufio.NewReader(os.Stdin)
+	// // out := bufio.NewWriter(os.Stdout)
+	// // out.Flush()
+	// eq, _, _ := in.ReadLine()
+	// expr, err := parseAndCheck(string(eq), vars)
+	// if err != nil {
+	// 	fmt.Printf("ошибка парсинга: %v\n", err)
+	// }
+	// var m float64
+	// for k := range vars {
+	// 	fmt.Printf("%v: ", k)
+	// 	fmt.Scanf("%f", &m)
+	// 	// _, _ = in.ReadByte()
+	// 	env[k] = m
+	// }
+	// fmt.Println(expr.Eval(env))
 }
