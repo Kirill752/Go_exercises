@@ -1,10 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"log"
 	"math"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -14,6 +15,8 @@ type Expr interface {
 	Eval(env Env) float64
 	// Check сообщает об ошибках в данном Expr и добавляет свои Vars
 	Check(vars map[Var]bool) error
+	// String выводит арифметическое выражение
+	String() string
 }
 
 // Var определяет переменную, например x.
@@ -38,6 +41,32 @@ type binary struct {
 type call struct {
 	fn   string
 	args []Expr
+}
+
+func (v Var) String() string {
+	return fmt.Sprintf("var: %s", string(v))
+}
+
+func (l literal) String() string {
+	return fmt.Sprintf("const: %.2f", l)
+}
+
+func (u unary) String() string {
+	return fmt.Sprintf("unary: %q%s", u.op, u.x.String())
+}
+
+func (b binary) String() string {
+	return fmt.Sprintf("binary: %s %q %s", b.x.String(), b.op, b.у.String())
+}
+
+func (c call) String() string {
+	switch c.fn {
+	case "pow":
+		return fmt.Sprintf("call: %s(%s, %s)", c.fn, c.args[0].String(), c.args[1].String())
+	case "sin", "cos", "sqrt":
+		return fmt.Sprintf("call: %s(%s)", c.fn, c.args[0].String())
+	}
+	panic(fmt.Sprintf("неподдерживаемая функция: %s", c.fn))
 }
 
 // Отображение переменных на значения
@@ -84,6 +113,14 @@ func (c call) Eval(env Env) float64 {
 		return math.Cos(c.args[0].Eval(env))
 	case "sqrt":
 		return math.Sqrt(c.args[0].Eval(env))
+	case "min":
+		min := c.args[0].Eval(env)
+		for i := 0; i < len(c.args); i++ {
+			if c.args[i].Eval(env) < min {
+				min = c.args[i].Eval(env)
+			}
+		}
+		return min
 	}
 	panic(fmt.Sprintf("неподдерживаемый вызов функции: %s", c.fn))
 }
@@ -97,14 +134,14 @@ func (literal) Check(vars map[Var]bool) error {
 }
 
 func (u unary) Check(vars map[Var]bool) error {
-	if strings.ContainsRune("+-", u.op) {
+	if !strings.ContainsRune("+-", u.op) {
 		return fmt.Errorf("некоректный унарный оператор %q", u.op)
 	}
 	return u.x.Check(vars)
 }
 func (b binary) Check(vars map[Var]bool) error {
-	if strings.ContainsRune("+-", b.op) {
-		return fmt.Errorf("некоректный унарный оператор %q", b.op)
+	if !strings.ContainsRune("+-*/", b.op) {
+		return fmt.Errorf("некоректный бинарный оператор %q", b.op)
 	}
 	if err := b.x.Check(vars); err != nil {
 		return err
@@ -118,6 +155,13 @@ func (c call) Check(vars map[Var]bool) error {
 	arity, ok := numParams[c.fn]
 	if !ok {
 		return fmt.Errorf("неизвестная функция %q", c.fn)
+	}
+	if c.fn == "min" {
+		if len(c.args) <= 0 {
+			return fmt.Errorf("вызов %s не имеет аргументов", c.fn)
+		} else {
+			return nil
+		}
 	}
 	if len(c.args) != arity {
 		return fmt.Errorf("вызов %s имеет %d аргументов вместо %d",
@@ -143,11 +187,11 @@ func parseAndCheck(s string) (Expr, error) {
 	if err := expr.Check(vars); err != nil {
 		return nil, err
 	}
-	for v := range vars {
-		if v != "x" && v != "y" && v != "r" {
-			return nil, fmt.Errorf("undefined variable: %s", v)
-		}
-	}
+	// for v := range vars {
+	// 	if v != "x" && v != "y" && v != "r" {
+	// 		return nil, fmt.Errorf("undefined variable: %s", v)
+	// 	}
+	// }
 	return expr, nil
 }
 
@@ -166,6 +210,14 @@ func plot(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/plot", plot)
-	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+	// http.HandleFunc("/plot", plot)
+	// log.Fatal(http.ListenAndServe("localhost:8000", nil))
+	in := bufio.NewReader(os.Stdin)
+	eq, _, _ := in.ReadLine()
+	expr, err := parseAndCheck(string(eq))
+	if err != nil {
+		fmt.Printf("ошибка парсинга: %v\n", err)
+	}
+	env := Env{"a": math.Pi / 6, "y": 2, "z": 16}
+	fmt.Println(expr.Eval(env))
 }
