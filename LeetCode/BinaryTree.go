@@ -14,6 +14,14 @@ type Tree struct {
 	root *TreeNode
 }
 
+func InitBinTree(vals []int) *Tree {
+	t := new(Tree)
+	for _, v := range vals {
+		t.Insesrt(v)
+	}
+	return t
+}
+
 /*Вставка элемента в дерево*/
 func (t *Tree) Insesrt(val int) {
 	// Проверка существования дерева
