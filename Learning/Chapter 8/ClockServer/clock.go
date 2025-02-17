@@ -19,7 +19,7 @@ func clock(port string) {
 			log.Print(err)
 			continue
 		}
-		// Обработка единственного подключения
+		// Обработка подключения
 		go handlecon(conn)
 	}
 }
