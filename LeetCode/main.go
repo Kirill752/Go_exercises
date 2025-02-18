@@ -1,7 +1,10 @@
 package main
 
+import "fmt"
+
 func main() {
-	pr := []int{3, 9, 20, 15, 7}
-	in := []int{9, 3, 15, 20, 7}
-	buildTree(pr, in)
+	pr := []int{1, 2, 3, 4, 5, 6}
+	in := []int{3, 2, 4, 1, 5, 6}
+	root := buildTree(pr, in)
+	fmt.Println(hasPathSum(root, 7))
 }
