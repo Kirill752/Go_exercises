@@ -3,8 +3,8 @@ package main
 import "fmt"
 
 func main() {
-	pr := []int{1, 2, 3, 4, 5, 6}
-	in := []int{3, 2, 4, 1, 5, 6}
+	pr := []int{4, 9, 5, 1, 0}
+	in := []int{5, 9, 1, 4, 0}
 	root := buildTree(pr, in)
-	fmt.Println(hasPathSum(root, 7))
+	fmt.Println(sumNumbers(root))
 }
