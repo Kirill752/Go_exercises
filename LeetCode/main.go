@@ -3,8 +3,9 @@ package main
 import "fmt"
 
 func main() {
-	pr := []int{4, 9, 5, 1, 0}
-	in := []int{5, 9, 1, 4, 0}
+	pr := []int{-1, 5, 4, 2, -4}
+	in := []int{4, -4, 2, 5, -1}
 	root := buildTree(pr, in)
-	fmt.Println(sumNumbers(root))
+	// root.left.left.val = 1
+	fmt.Println(maxPathSum(root))
 }
