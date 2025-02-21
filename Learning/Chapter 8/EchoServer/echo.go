@@ -22,15 +22,33 @@ func echo(c net.Conn, shout string, delay time.Duration) {
 
 func handleConn(c net.Conn) {
 	input := bufio.NewScanner(c)
-	for input.Scan() {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			echo(c, input.Text(), 1*time.Second)
-		}()
+	// Канал передачи сообщений
+	text := make(chan string)
+	defer func() {
+		wg.Wait()
+		c.Close()
+		fmt.Println("You have been disconnected from the server")
+	}()
+	// Отдельная go подпрограмма, считывающая сообщение из подключения
+	go func() {
+		for input.Scan() {
+			text <- input.Text()
+		}
+	}()
+	for {
+		select {
+		// Если получаем сообщение, то обрабатываем его
+		case mes := <-text:
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				echo(c, mes, 1*time.Second)
+			}()
+		// Если сообщение не приходит в течение 10 секунд, срабатывает этот кейс
+		case <-time.After(10 * time.Second):
+			return
+		}
 	}
-	wg.Wait()
-	c.Close()
 }
 
 func main() {
