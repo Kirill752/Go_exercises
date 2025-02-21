@@ -3,9 +3,9 @@ package main
 import "fmt"
 
 func main() {
-	pr := []int{7, 3, 15, 9, 20}
-	in := []int{3, 7, 9, 15, 20}
+	pr := []int{1, 2, 5, 3, 4}
+	in := []int{2, 5, 1, 3, 4}
 	root := buildTree(pr, in)
 	// root.left.left.val = 1
-	fmt.Println(lowestCommonAncestor(root, root.right.left, root.left).val)
+	fmt.Println(averageOfLevels(root))
 }
