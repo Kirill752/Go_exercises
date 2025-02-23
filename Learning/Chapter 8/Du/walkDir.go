@@ -8,12 +8,26 @@ import (
 	"time"
 )
 
-// var wg sync.WaitGroup
+// Канал отмены
+var done = make(chan struct{})
+
+// cancelled опрашивает канал отмены
+func cancelled() bool {
+	select {
+	case <-done:
+		return true
+	default:
+		return false
+	}
+}
 
 // walkDir рекусивно обходит дерево файлов с корнем dir
 // и отправляет размер каждого в fileSizes
 func walkDir(dir string, fileSizes chan<- int64, wg *sync.WaitGroup) {
 	defer wg.Done()
+	if cancelled() {
+		return
+	}
 	for _, entry := range dirents(dir) {
 		if entry.IsDir() {
 			wg.Add(1)
@@ -34,7 +48,11 @@ var sema = make(chan struct{}, 20)
 
 // dirents возвращает записи каталога dir
 func dirents(dir string) []os.DirEntry {
-	sema <- struct{}{}        //Захват маркера
+	select {
+	case <-done:
+		return nil
+	case sema <- struct{}{}: //Захват маркера
+	}
 	defer func() { <-sema }() //Освобождение марекра
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -70,6 +88,12 @@ func DiskUsage(dir string) {
 loop:
 	for {
 		select {
+		case <-done:
+			// Опустошение канала fileSizes, чтобы позволить
+			// завершиться существующим go -подпрограммам
+			for range fileSizes {
+			}
+			return
 		case size, ok := <-fileSizes:
 			// Если канал закрыт
 			if !ok {

@@ -2,12 +2,18 @@ package main
 
 import (
 	"flag"
+	"os"
 	"sync"
 )
 
 var verbose = flag.Bool("v", false, "Вывод промежуточных результатов")
 
 func main() {
+	// Отмена обхода при обнаруженном вводе
+	go func() {
+		os.Stdin.Read(make([]byte, 1))
+		close(done)
+	}()
 	// Определяем исходные каталоги
 	flag.Parse()
 	roots := flag.Args()

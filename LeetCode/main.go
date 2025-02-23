@@ -3,17 +3,9 @@ package main
 import "fmt"
 
 func main() {
-	// pr := []int{1, 2, 5, 3, 4}
-	// in := []int{2, 5, 1, 3, 4}
-	// root := buildTree(pr, in)
-	// root.left.left.val = 1
-	board := [][]byte{{'O', 'X', 'O'}, {'X', 'O', 'X'}, {'O', 'X', 'O'}}
-	for _, l := range board {
-		fmt.Println(string(l))
-	}
-	fmt.Println()
-	solve(board)
-	for _, l := range board {
-		fmt.Println(string(l))
-	}
+	equations := [][]string{{"a", "b"}, {"a", "c"}, {"d", "e"}, {"d", "f"}, {"a", "d"}, {"aa", "bb"}, {"aa", "cc"}, {"dd", "ee"}, {"dd", "ff"}, {"aa", "dd"}, {"a", "aa"}}
+	values := []float64{2.0, 3.0, 4.0, 5.0, 7.0, 5.0, 8.0, 9.0, 3.0, 2.0, 2.0}
+	queries := [][]string{{"ff", "a"}}
+	ans := calcEquation(equations, values, queries)
+	fmt.Println(ans)
 }
