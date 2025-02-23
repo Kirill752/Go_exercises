@@ -8,20 +8,22 @@ import (
 
 func handleConn(conn net.Conn) {
 	// Новый канал исходящих сообщений клиента
-	ch := make(chan string)
-	go clientWriter(conn, ch)
+	var newClient Client
+	newClient.ch = make(chan string)
+	go clientWriter(conn, newClient.ch)
 
 	who := conn.RemoteAddr().String()
-	ch <- "Вы " + who + "\n"
-	messages <- who + " подключился\n"
-	entering <- ch
+	newClient.name = who
+	newClient.ch <- "Вы " + who
+	messages <- who + " подключился"
+	entering <- newClient
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
-		messages <- who + ": " + input.Text() + "\n"
+		messages <- who + ": " + input.Text()
 	}
 	// Примечание: игнорируем потенциальные ошибки input.Err()
-	leaving <- ch
-	messages <- who + " отключился\n"
+	leaving <- newClient
+	messages <- who + " отключился"
 	conn.Close()
 }
 
