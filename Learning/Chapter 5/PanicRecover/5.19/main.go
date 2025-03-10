@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Фугкция withoutReturn возвращает значение без оператора return
 func withoutReturn(num int) (res int) {
